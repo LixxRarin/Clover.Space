@@ -1,13 +1,16 @@
-# Clover Space / Project Z
-A simple asynchronous library for interaction with Clover Space (Project Z)
+# Clover.Space (Project Z)
 
-### ❗ Outdated. I am not responsible for the functionality of the library at the moment. If the API hasn't changed much after the rebranding, this should work. 
+A simple python asynchronous library for interaction with **Clover.Space** *(old Project Z)*
+
+This library is a fork of [ProjZ.py](https://github.com/D4rkwat3r/ProjZ).
+Updated by myself with the help of [MrWest](https://github.com/MistoWest).
 
 ## Installation
  ```commandline
- pip install projz.py
+ pip install cloverspace
  ```
 
+## ❗ The following examples need to be updated!
 ### Example - login and get object id from link
 ```python3
 import projz

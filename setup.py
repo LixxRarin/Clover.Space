@@ -36,13 +36,13 @@ def main():
             print("Sox found, no installation required.")
 
     setup(
-        name="ProjZ.py",
-        version="2.4.7",
-        author="D4rkwat3r",
-        description="An asynchronous library for creating scripts and chatbots in Project Z.",
-        url="https://github.com/D4rkwat3r/ProjZ",
+        name="cloverspace",
+        version="3.0.0",
+        author="LixxRarin",
+        description="An asynchronous library for creating scripts and chatbots in Clover.Space;",
+        url="https://github.com/LixxRarin/Clover.Space/",
         packages=find_packages(),
-        author_email="ktoya170214@gmail.com",
+        author_email="lixxrarin@gmail.com",
         install_requires=get_requirements(),
         long_description=get_readme(),
         long_description_content_type="text/markdown",
@@ -51,6 +51,7 @@ def main():
             "project-z", "projectz", "projz",
             "bots", "api", "supersymlab",
             "projz-bot", "projz-bots", "projz-api",
+            "cloverspace", "clover-space"
         ]
     )
 
