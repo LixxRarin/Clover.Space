@@ -37,7 +37,7 @@ def main():
 
     setup(
         name="cloverspace",
-        version="3.0.0",
+        version="3.0.1",
         author="LixxRarin",
         description="An asynchronous library for creating scripts and chatbots in Clover.Space;",
         url="https://github.com/LixxRarin/Clover.Space/",
