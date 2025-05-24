@@ -54,7 +54,8 @@ class RequestManager:
         params: Optional[dict] = None,
         body: Optional[bytes] = None,
         content_type: Optional[str] = None,
-        web: bool = True
+        web: bool = True,
+        extra_headers: Optional[dict] = None # Este argumento já existia, mas precisamos garantir que ele seja usado
     ) -> dict:
         if not endpoint.startswith("/"): endpoint = f"/{endpoint}"
         if params: endpoint += f"?{urlencode(params)}"
@@ -65,24 +66,33 @@ class RequestManager:
                 f"[HTTP {request_time}] " +
                 (f"[{method} {endpoint}]" if body is None else f"[{method} {endpoint}] [{len(body)} bytes]")
             )
-        async with ClientSession(base_url="https://api.projz.com" if not web else "https://www.projz.com") as session:
+        async with ClientSession(base_url="https://api.clover.space" if not web else "https://www.clover.space") as session:
+            # Aqui está a modificação chave:
+            # Criamos um dicionário com o Content-Type (se existir)
+            content_type_header = {"Content-Type": content_type} if content_type is not None else {}
+            # Combinamos os extra_headers fornecidos com o content_type_header
+            headers_to_build = {**(extra_headers or {}), **content_type_header}
+
             response = await session.request(
                 method,
                 endpoint,
+                # Passamos o dicionário combinado para build_headers
                 headers=await self.build_headers(
                     endpoint,
                     body,
-                    {"Content-Type": content_type} if content_type is not None else None
-                ) if not web else dict(),
+                    headers_to_build # <<< Passando os cabeçalhos combinados como 'extra' para build_headers
+                ) if not web else dict(), # Se for web=True, passa dict() vazio como antes
                 data=body
             )
             try: response_json = loads(await response.text())
-            except (JSONDecodeError, UnicodeDecodeError): raise BadResponse("Can't read response from Project Z API")
+            except (JSONDecodeError, UnicodeDecodeError): raise BadResponse("Can't read response from Clover.Space API")
             if "apiCode" in response_json: raise ApiException.get(response_json)
             return response_json
 
-    async def get(self, endpoint: str, params: Optional[dict] = None, web: bool = False) -> dict:
-        return await self.request("GET", endpoint, params=params or dict(), web=web)
+    # Função get modificada
+    async def get(self, endpoint: str, params: Optional[dict] = None, web: bool = False, extra_headers: Optional[dict] = None) -> dict: # <<< Adicionado extra_headers aqui
+        # Repassa o extra_headers para a função request
+        return await self.request("GET", endpoint, params=params or dict(), web=web, extra_headers=extra_headers) # <<< Passando extra_headers para request
 
     async def delete(self, endpoint: str, params: Optional[dict] = None, web: bool = False) -> dict:
         return await self.request("DELETE", endpoint, params=params or dict(), web=web)
@@ -104,7 +114,9 @@ class RequestManager:
         return await self.request("POST", endpoint, body=content.getvalue(), content_type=content_type, web=web)
 
     async def post_json(self, endpoint: str, body: Union[dict, DataClassJsonMixin], web: bool = False) -> dict:
-        return await self.post(endpoint, body=body, content_type="application/json; charset=UTF-8", web=web)
+        response = await self.post(endpoint, body=body, content_type="application/json; charset=UTF-8", web=web)
+        # print("Resposta da API:", response)  # Adicionando log para a resposta
+        return response
 
     async def post_empty(self, endpoint: str, web: bool = False):
         return await self.post(endpoint, body="", content_type=None, web=web)

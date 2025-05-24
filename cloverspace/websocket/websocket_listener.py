@@ -39,14 +39,15 @@ class WebsocketListener(SubscriptionHandler):
         log_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[WebSocket {log_time}] [{log_type}] [{message_type}] [{content_length} bytes]")
 
-    async def connect(self):
-        self.client_session = ClientSession(base_url="wss://ws.projz.com")
+    async def connect(self, sid: str):
+        self.client_session = ClientSession(base_url="wss://api.clover.space")
         self.connection = await self.client_session.ws_connect(
-            "/v1/chat/ws",
-            headers=await self.request_manager.build_headers("/v1/chat/ws")
+            f"/v1/chat/web-ws?sId={sid}",
+            headers=await self.request_manager.build_headers(f"/v1/chat/web-ws?sId={sid}")
         )
         self.task_receiver = create_task(self.receive())
         self.task_pinger = create_task(self.ping())
+
 
     async def disconnect(self):
         self.task_receiver.cancel()

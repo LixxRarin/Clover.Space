@@ -12,9 +12,9 @@ class HeadersProvider(IHeadersProvider):
 
     def get_persistent_headers(self) -> dict:
         return {
-            "appType": "MainApp", "appVersion": "2.27.1",
+            "appType": "MainApp", "appVersion": "10000.0.30",
             "osType": "2", "deviceType": "1", "flavor": "google",
-            "User-Agent": "com.projz.z.android/2.27.1-25104 (Linux; U; Android 7.1.2; ASUS_Z01QD; Build/Asus-user 7.1.2 2017)"
+            "User-Agent": "com.clover.space.android/10000.0.30-25104 (Linux; U; Android 7.1.2; ASUS_Z01QD; Build/Asus-user 7.1.2 2017)"
         }
 
     def get_request_info_headers(self, device_id: str, nonce: str, language: str, country_code: str, time_zone: int) -> dict:

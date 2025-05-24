@@ -46,16 +46,16 @@ class Client(RequestManager):
         self.provider.set_sid(resp.sid)
         self.account = resp.account
         self.user_profile = resp.user_profile
-        await self.websocket.connect()
+        await self.websocket.connect(resp.sid)
 
     async def _resolve_circle_reference(self, ref: CircleReference) -> int:
         if isinstance(ref, Circle):
             return ref.circle_id
         elif isinstance(ref, int) or ref.isdigit():
             return ref
-        if "projz.com/s/c/" in ref:
+        if "clover.space/s/c/" in ref:
             return (await self.get_link_info(ref)).object_id
-        return (await self.get_link_info(f"https://www.projz.com/s/c/{ref}")).object_id
+        return (await self.get_link_info(f"https://www.clover.space/s/c/{ref}")).object_id
 
     async def _login(
         self,
@@ -430,7 +430,7 @@ class Client(RequestManager):
         data = {
             "type": message_type if isinstance(message_type, int) else message_type.value,
             "threadId": thread_id,
-            "uid": self.user_profile.uid,
+            "uid": int(self.user_profile.uid),
             "seqId": seq_id,
             "extensions": {}
         }
@@ -985,11 +985,12 @@ class Client(RequestManager):
         )
 
     async def comment(self,
-                      parent_type: Union[EObjectType, int],
-                      parent_id: int,
-                      content: Optional[str] = None,
-                      media_list: Optional[list[Media]] = None,
-                      reply_to: Optional[int] = None) -> Comment:
+                    parent_type: Union[EObjectType, int],
+                    parent_id: int,
+                    content: Optional[str] = None,
+                    media_list: Optional[list[Media]] = None,
+                    reply_to: Optional[int] = None,
+                    reply_to_uid: Optional[int] = None) -> Comment:
         """
         Create a comment
         :param parent_type: ObjectType enum field or type identifier
@@ -997,6 +998,7 @@ class Client(RequestManager):
         :param content: text content of the comment
         :param media_list: attachments of the comment
         :param reply_to: reply to the comment id
+        :param reply_to_uid: uid of the user you are replying to
         :return: model.Comment
         """
         data = {
@@ -1005,9 +1007,15 @@ class Client(RequestManager):
             "parentId": parent_id,
             "mediaList": [media_obj.to_dict() for media_obj in media_list] if media_list is not None else []
         }
-        if content is not None: data["content"] = content
-        if reply_to is not None: data["replyId"] = reply_to
+        if content is not None:
+            data["content"] = content
+        if reply_to is not None:
+            data["replyId"] = reply_to
+        if reply_to_uid is not None:
+            data.setdefault("extensions", {})["replyToUid"] = reply_to_uid
+
         return Comment.from_dict(await self.post_json("/v1/comments", data))
+
 
     async def create_poll(self, title: str, poll_items: list[str]) -> Poll:
         """
